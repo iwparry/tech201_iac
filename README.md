@@ -158,6 +158,50 @@ If we get the following in our output
 This verifies that our controller is able to connect to our `web` machine.
 
 
+
+# Making Ansible Playbooks in YAML files
+We start making our Ansible playbooks by navigating to the following directory: `/etc/ansible`
+
+Inside the directory we create our playbook to configure Nginx serve in our web machine
+![](images/yamlfile.png)
+
+We can then run our playbook via the command:
+```
+sudo ansible-playbook nginx-playbook.yaml
+```
+We should then get the following output:
+![](images/run-yaml-script.png)
+
+If we then enter the IP of the `web` machine in our browser (192.168.33.10) we can see that our nginx server is running.
+
+Now that our Nginx server is running on our machine we can create another playbook to install and run our app.
+
+
+### Create a playbook to configure/install mongodb in our db machine
+We create the following simple playbook:
+![](images/mongodb-playbook.png)
+
+When we run the playbook ansible will check its `hosts` file (in `/etc/ansible`) to verify that it has the host, in this case db.
+
+![](images/hosts.png)
+
+We can check the status of mongodb in our `db` machine from our `controller` machine with
+```
+sudo ansible db -a "systemctl status mongodb" --ask-vault-pass
+```
+This spares us from having to ssh into the actual `db` machine which can be time consuming when we are configuring multiple machines.
+
+If everything is alright, we ssh into `db` directly from `controller`:
+```
+ssh vagrant@192.168.33.11
+```
+The IP here is the IP of our `db` machine.
+Then we need to navigate to the mongodb configuration file in the /etc directory. The file is `mongodb.conf`. We then edit the BindIp to 0.0.0.0 to allow a connection from anywhere and then we apply this change via.
+```
+sudo systemctl restart mongodb
+```
+Once this is done we then enter our `web` machine and navigate to our `app` folder where we run `npm install` and we then create an environment variable called `DB_HOST=db-ip`. We should then simply be able to run `npm start` to get the app running and listening on port 3000. 
+
 # Sources
 https://www.redhat.com/en/topics/automation/what-is-infrastructure-as-code-iac#:~:text=choose%20Red%20Hat%3F-,Overview,to%20edit%20and%20distribute%20configurations.
 
