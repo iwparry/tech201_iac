@@ -55,11 +55,16 @@ There are a variety of tools that are used to implement IaC, here are some of th
 - SaltStack
 
 ### Terraform
+Terraform is and IaC tool that lets you define both cloud and on-prem resources in human-readable configuration files that you can version, reuse, and share.
+You can then use a consistent workflow to provision and manage all of your infrastructure throughout its lifecycle.
 
 ### Ansible
-
+Ansible is an IaC tool used for configuration management. With Ansible, organisations are able perform complex tasks accross a network of machines with relative ease. Ansible has several advantages over similar tools like Chef or Puppet, due to its playbooks being written in YAML, which are both human readable and computationally powerful, also Ansible is agentless, meaning it doesn't need to be installed on target machines.
 
 # Using Ansible Controller with 3 VMs
+
+![](images/ansible-arch.png)
+
 Firstly we will create a vagrantfile with the following code to setup 3 Virtual Machines in Virtual Box.
 ```Ruby
 # MULTI SERVER/VMs environment 
@@ -202,6 +207,129 @@ sudo systemctl restart mongodb
 ```
 Once this is done we then enter our `web` machine and navigate to our `app` folder where we run `npm install` and we then create an environment variable called `DB_HOST=db-ip`. We should then simply be able to run `npm start` to get the app running and listening on port 3000. 
 
+# Automate the process of creating and EC2 Instance
+What we want to do is launch an EC2 instance via an Ansible Playbook.
+
+## Ansible-Vault
+Ansible provides security through ansible-vault with the following folder structure:
+```
+/etc/ansible/group_vars/all/pass.yml
+```
+Here we store the keys we want to access AWS, we'll call them `aws_access_key` and `aws_secret_key` and give our ssh key permissions via `sudo chmod 400 file.pem`.
+
+To run the command to execute the playbook we need the following
+```
+sudo ansible-playbook ec2.yml --ask-vault-pass --tags create_ec2
+```
+Must include `--ask-vault-pass` to prompt us to provide a password that we set up, otherwise the command will not work.
+
+### Setting up our vault
+
+```
+sudo vi test.txt
+```
+Need to get to `INSERT` mode, then to save vim file: esc > wq! > press enter.
+
+We may want to install `tree`, a useful tool for linux
+```
+sudo apt install tree
+```
+
+We'll create a `group_vars` folder and then an `all` folder inside
+
+```
+sudo mkdir group_vars
+cd group_vars
+sudo mkdir all
+```
+In all we then run the command
+```
+sudo ansible-vault create pass.yaml
+```
+You will be prompted to create a password.
+
+We will need to use  
+```
+--ask-vault-pass
+```
+after some of our commands moving forward
+
+### Creating an Ansible Playbook to launch an EC2 Instance on AWS
+
+
+# Terraform
+## Installing Terraform
+Video guide: https://www.youtube.com/watch?v=SkcRSJWNRS8
+
+We can verify if Terraform is installed by running `terraform --version`
+
+We expect
+```
+Terraform v1.3.9
+on windows_amd64
+```
+
+## Using Terraform 
+
+![](images/iac.png)
+
+To use Terraform we create a configuration file, `main.tf`.
+
+Note: Ensure to install Terraform extensions on VS Code
+
+![](images/tf-ext.png)
+
+In `main.tf` we will write code to launch an EC2 Instance on AWS:
+```ruby
+# launch ec2
+# which cloud provider - AWS
+# terraform downloads required dependencies -
+# terraform init 
+
+provider "aws" {
+    region = "eu-west-1"
+
+}
+
+# MUST OPEN NEW GITBASH AS ADMIN AFTER ENV VAR SET UP
+# launch an instance
+resource "aws_instance" "app_instance" {
+    ami = "ami-0f69657a120c6f174"
+    instance_type = "t2.micro"
+    associate_public_ip_address = true
+    tags = {
+        Name = "tech201-iwan-terraform-app"
+    }
+}
+```
+To install the dependencies required to launch an instanc on AWS we run `terraform init`. Once this is done we can run the following
+
+```
+terraform plan
+```
+This creates an execution plan, which lets you preview the changes that Terraform plans to make to your infrastructure. When Terraform creates a plan it:
+- Reads the current state of any already-existing objects to ensure the Terraform state is up-to-date
+- Compares the current configuration to the prior state and noting any differences
+- Proposes a set of change actions that should make the remote objects match the configuration.
+
+It is important that AWS access keys are saved properly to your machine's environment variables (User variables specifically) in advanced system settings on your local machine. If we don't have the correct access we may get the following when running `terraform plan`
+
+![](images/aws-provider-error.png)
+
+Note you may just need to open a new bash terminal (AS ADMIN) to get this working.
+
+If everything looks alright we execute our Terraform plan by running
+```
+terraform apply
+```
+In this case we should see our EC2 Instance launched as specified in our file `main.tf`
+
+And should we wish to terminate our EC2 instance we run:
+```
+terraform destroy
+```
+
+
 # Sources
 https://www.redhat.com/en/topics/automation/what-is-infrastructure-as-code-iac#:~:text=choose%20Red%20Hat%3F-,Overview,to%20edit%20and%20distribute%20configurations.
 
@@ -212,3 +340,5 @@ https://www.vmware.com/topics/glossary/content/configuration-management.html#:~:
 https://www.redhat.com/en/topics/automation/what-is-orchestration#:~:text=Orchestration%20is%20the%20automated%20configuration,isn't%20a%20scalable%20strategy.
 
 https://www.xenonstack.com/blog/infrastructure-as-code-tools
+
+https://developer.hashicorp.com/terraform/intro
