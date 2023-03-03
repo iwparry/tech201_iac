@@ -43,6 +43,8 @@ Orchestration is the automated configuration, management, and coordination of co
 
 IT teams must manage many servers and applications, but doing so manually isn’t a scalable strategy. The more complex an IT system, the more complex managing all the moving parts can become. The need to combine multiple automated tasks and their configurations across groups of systems or machines increases. That’s where orchestration can help.
 
+IT orchestration also helps you to streamline and optimize frequently occurring processes and workflows, which can support a DevOps approach and help your team deploy applications more quickly.
+
 ## IaC Tools
 There are a variety of tools that are used to implement IaC, here are some of the best tools for IaC in 2022:
 - Terraform
@@ -55,8 +57,14 @@ There are a variety of tools that are used to implement IaC, here are some of th
 - SaltStack
 
 ### Terraform
-Terraform is and IaC tool that lets you define both cloud and on-prem resources in human-readable configuration files that you can version, reuse, and share.
+Terraform is and IaC tool used for infrastructure provisioning that lets you define both cloud and on-prem resources in human-readable configuration files that you can version, reuse, and share.
 You can then use a consistent workflow to provision and manage all of your infrastructure throughout its lifecycle.
+Terraform language is declarative, this means it describes an intended goal or state, rather than the steps required to achieve that goal.
+
+The core Terraform workflow consists of three stages:
+- **Write** -  You define resources, which may ba accross multiple cloud providers and services.
+- **Plan** - Terraform creates an execution plan describing the infrastructure it will create, update, or destroy based on the existing infrastructure and your configuration.
+- **Apply** - On approval, Terraform performs the proposed operations in the correct order, respecting any resource dependencies.
 
 ### Ansible
 Ansible is an IaC tool used for configuration management. With Ansible, organisations are able perform complex tasks accross a network of machines with relative ease. Ansible has several advantages over similar tools like Chef or Puppet, due to its playbooks being written in YAML, which are both human readable and computationally powerful, also Ansible is agentless, meaning it doesn't need to be installed on target machines.
