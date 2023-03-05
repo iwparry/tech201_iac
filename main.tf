@@ -9,6 +9,8 @@ provider "aws" {
 }
 
 # MUST OPEN NEW GITBASH AS ADMIN AFTER ENV VAR SET UP
+# If running terraform apply after destroying terraform infrastructure - need to update varaible.tf file since previous variables used will be invalid.
+# 1. Create VPC, 2. IG , SG 3. SN 4. RT 5. RTA 6. EC2
 
 # create a VPC
 resource "aws_vpc" "iwan_vpc" {
@@ -116,7 +118,7 @@ resource "aws_security_group" "app_sg" {
         Name = "tech201_iwan_terraform_app_sg"
     }
 }
-# launch an instance
+# # launch an instance
 resource "aws_instance" "app_instance" {
     ami = var.app_ami_id
     instance_type = "t2.micro"
